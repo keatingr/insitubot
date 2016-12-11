@@ -1,8 +1,13 @@
 from data_api import get_entry
 
-customer_id = 2364433
+customer_id = 489299
 
-customer = get_entry("id",order_id,"customer_list")
-invoices = get_entry("id",)
+customer = get_entry("id",customer_id,"customer_list")
+print customer
+#invoices = get_entry("id",)
 
-#[{u'city': u'Bolingbrook', u'name': u'24 STOP (BOLINGBROOK)', u'address2': u'av regional', u'zipcode': u'60440', u'longitude': u'-76.649812', u'phone': u'', u'state': u'IL', u'contact': u'', u'address': u'24 STOP LIQUOR (BOLINGBROOK) 596 N.Pinecrest Rd.   ', u'latitude': u'5.695633', u'id': 2364433}]
+#{"id":489299,"name":"OSCO (S.Pulaski Chicago)","address":"OSCO-DRUG 6351 S. PULASKI RD   ","address2":"","city":"CHICAGO","state":"IL","zipcode":"00000","contact":"","phone":"","latitude":"34.9121733","longitude":"-77.23188189999999"}
+
+#longitude -77.23188189999999
+
+#latitude 34.9121733
