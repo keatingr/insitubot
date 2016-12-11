@@ -7,8 +7,10 @@ BOT_ID = os.environ.get("BOT_ID")
 
 # constants
 AT_BOT = "<@" + BOT_ID + ">"
-EXAMPLE_COMMAND = "do"
 SLACK_USER_MARK = "U3A8AN4VB"
+SLACK_USER_JULIAN = ""
+SLACK_USER_AMEH = ""
+SLACK_USER_RAXESH = ""
 
 # instantiate Slack & Twilio clients
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
@@ -30,11 +32,17 @@ def handle_command(command, channel, user):
 
 def get_user_from_id(slack_user_id):
     """
-    blah
+    Map constants for Slack API usernames to a display name
     """
     userDisplayName = slack_user_id
     if slack_user_id == SLACK_USER_MARK:
         userDisplayName = "Mark O"
+    elif slack_user_id == SLACK_USER_AMEH:
+        userDisplayName = "Ameh"
+    elif slack_user_id == SLACK_USER_RAXESH:
+        userDisplayName = "Raxesh"
+    elif slack_user_id == SLACK_USER_JULIAN:
+        userDisplayName = "Julian"
     return userDisplayName
 
 def parse_slack_output(slack_rtm_output):

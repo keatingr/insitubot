@@ -1,0 +1,10 @@
+Authy
+
+https://www.twilio.com/docs/api/authy/authy-phone-intelligence-api
+GET https://api.authy.com/protected/{FORMAT}/phones/info?api_key={KEY}&phone_number={PHONE_NUMBER}
+
+curl -i 'https://api.authy.com/protected/json/phones/info?api_key=KEY&phone_number=8572424166'&
+
+-type of phone number [cell phone | landline | voip]
+-provider of the number, e.g. "AT&T Wireless" or "
+-If the number has been ported from a previous provider.
