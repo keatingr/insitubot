@@ -16,6 +16,7 @@ SLACK_USER_RAXESH = "U39EELHNC"
 # instantiate Slack & Twilio clients
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
 # initiate user mapping (ordinarily LDAP or local datastore or Twilio auth)
+# Team inSituBot consists of purchasing agents, all authorized for the customer id arbitrarily chosen as 489299
 users = {}
 users[SLACK_USER_MARK] = {'id':0,'displayName': "Mark O", 'insituCustomerId':489299}
 users[SLACK_USER_AMEH] = {'id':1,'displayName': "Ameh", 'insituCustomerId':489299}
@@ -28,17 +29,17 @@ def handle_command(command, channel, slack_user_id):
         are valid commands. If so, then acts on the commands. If not,
         returns back what it needs for clarification.
     """
-    if command == "track open orders":
+    if "track open orders" == nlp_understand(command):
         print "Entering track open orders"
-        response = "Now performing " + command + " for " + users[slack_user_id]['displayName'] + " ..."
+        response = "Now performing " + nlp_understand(command) + " for " + users[slack_user_id]['displayName'] + " ..."
+        slack_client.api_call("chat.postMessage", channel=channel,
+            text=response, as_user=True)
         customer_id = users[slack_user_id]['insituCustomerId']
         shipment_locations = pe.get_shipment_locations(customer_id)
         pe.upload_open_orders(customer_id,shipment_locations)
     else:
         response = "homey don't play that"
-
-    slack_client.api_call("chat.postMessage", channel=channel,
-                  text=response, as_user=True)
+        slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
 
 def parse_slack_output(slack_rtm_output):
     """
@@ -55,6 +56,16 @@ def parse_slack_output(slack_rtm_output):
                        output['channel'], \
                        output['user']
     return None, None, None
+
+def nlp_understand(please_do_this):
+    retVal = ""
+    if (please_do_this == "track open orders"):
+        retVal = "track open orders"
+    elif (please_do_this == "too"):
+        retVal = "track open orders"
+    #elif whatever nlp distributed live search finds for synonyms error handling 
+    return retVal
+
 
 if __name__ == "__main__":
     READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
