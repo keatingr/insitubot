@@ -50,11 +50,13 @@ def get_entry(param,val,url,optional_param = ''):
 		r = requests.get(get_url[url]+optional_param+'/'+access_token)
 	output = r.json()
 	return_list = []
-	
+	#print output
 	for i in output:
+		print (i[param])
+		print (val)
 		if i[param]==val:
 			return_list.append(i)
-	
+	print return_list
 	return return_list[0] if len(return_list)==1 else return_list
 
 
@@ -101,6 +103,10 @@ def get_product_names():
 	for i in output:
 		return_list.append(i['name'])
 	return return_list
+
+def get_invoices(customer_id):
+	r = requests.get(get_url['customer_invoices']+str(customer_id)+"/"+access_token).json()
+	return r
 
 '''
 for i in range(len(names)):
