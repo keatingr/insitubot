@@ -1,5 +1,4 @@
 import argparse, os, json, requests
-from bs4 import BeautifulSoup
 
 def check_folder(newpath):
 	if not os.path.exists(newpath):
@@ -40,8 +39,8 @@ def get_entry(param,val,url,optional_param = ''):
 	for i in output:
 		if i[param]==val:
 			return_list.append(i)
-			
-	return return_list
+	
+	return return_list[0] if len(return_list)==1 else return_list
 
 #print get_entry('name','110 Bagel Market Bistro','customer_query','1289928')
 
