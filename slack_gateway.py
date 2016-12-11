@@ -23,11 +23,15 @@ users[SLACK_USER_AMEH] = {'id':1,'displayName': "Ameh", 'insituCustomerId':48929
 users[SLACK_USER_RAXESH] = {'id':2,'displayName': "Raxesh", 'insituCustomerId':489299}
 users[SLACK_USER_JULIAN] = {'id':3,'displayName': "Julian", 'insituCustomerId':489299}
 
-pendingQuestion = ""
 
-def handle_question_response(pendingQuestion):
+
+def handle_question_response(pendingQuestion, userInput):
     if pendingQuestion != "":
-        response = "The last question I asked you was " + pendingQuestion
+        if pendingQuestion == "would you like to review your profile information":
+            if str(userInput) == "1":
+                response = "You have asked to update profile information. I was just kidding I don't know how to do that yet. Cya!"
+            else:
+                response = "Ok your loss dude"
         slack_client.api_call("chat.postMessage", channel=channel,
             text=response, as_user=True)
     return ""
@@ -38,8 +42,9 @@ def handle_declaration_response(command,slack_user_id):
         print "Entering greeting"
         #dynamic data in API makes it impossible to construct stable use cases for demo (recently ordered vs not)
         #demo use case will always be not recently placed any orders
-        response = "Hello, " + users[slack_user_id]['displayName'] + " I see you have not ordered from us recently would you like to review your profile information?\n\n1. Yes\n2. No"
-        retVal = response
+        askUser = "would you like to review your profile information"
+        response = "Hello, " + users[slack_user_id]['displayName'] + " I see you have not ordered from us recently " + askUser + "?\n\n1. Yes\n2. No"
+        retVal = askUser
         slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
     elif nlp_understand(command) == "track open orders":
         print "Entering track open orders"
@@ -64,10 +69,10 @@ def handle_command(command, channel, slack_user_id, pendingQuestion):
     print "handle_command: " + command
     retVal = ""
     if pendingQuestion != "":
-        retVal = handle_question_response(pendingQuestion)
+        retVal = handle_question_response(pendingQuestion, command)
     else:
         retVal = handle_declaration_response(command,slack_user_id)
-    print pendingQuestion
+    print "question pending: " + pendingQuestion
     return retVal
 
 def parse_slack_output(slack_rtm_output):
@@ -93,10 +98,13 @@ def nlp_understand(given_phrase):
     elif (given_phrase == "too"):
         retVal = "track open orders"
     #elif all other phrases that could mean track open orders return 'track open orders'
-    set_of_greetings = set(['hi', 'hello', 'hey', 'heya', 'whatup', 'greetings', 'hola'])
+    set_of_greetings = set(['hi', 'hello', 'sup', 'hey', 'heya', 'whatup', 'greetings', 'hola'])
     if (given_phrase in set_of_greetings):
         retVal = "greetings"
     return retVal
+
+#MAIN BODY
+pendingQuestion = ""
 
 if __name__ == "__main__":
     READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
