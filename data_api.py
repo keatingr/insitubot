@@ -22,14 +22,14 @@ product_list = 'https://tcedk8i2p6.execute-api.us-east-1.amazonaws.com/latest/pr
 customer_list = 'https://tcedk8i2p6.execute-api.us-east-1.amazonaws.com/latest/customer/list/'
 customer_query = 'https://tcedk8i2p6.execute-api.us-east-1.amazonaws.com/latest/customer/'
 customer_invoices = 'https://tcedk8i2p6.execute-api.us-east-1.amazonaws.com/latest/invoice/list/'
-#order_status = 'https://tcedk8i2p6.execute-api.us-east-1.amazonaws.com/latest/order/status/'
+order_status = 'https://tcedk8i2p6.execute-api.us-east-1.amazonaws.com/latest/order/status/'
 email_auth = 'https://tcedk8i2p6.execute-api.us-east-1.amazonaws.com/latest/authenticate/status/'
 
 get_url = {'product_list':product_list,
 	'customer_list':customer_list,
 	'customer_query':customer_query,
 	'customer_invoices':customer_invoices,
-	#'order_status':order_status,
+	'order_status':order_status,
 	'email_auth':email_auth}
 
 
@@ -50,7 +50,6 @@ def get_entry(param,val,url,optional_param = ''):
 		r = requests.get(get_url[url]+optional_param+'/'+access_token)
 	output = r.json()
 	return_list = []
-	#print output
 	for i in output:
 		print (i[param])
 		print (val)
@@ -104,10 +103,27 @@ def get_product_names():
 		return_list.append(i['name'])
 	return return_list
 
+def get_product_list():
+	r = requests.get(get_url['product_list']+access_token).json()
+	return r
+
+def get_customer_list():
+	r = requests.get(get_url['customer_list']+access_token).json()
+	return r
+
 def get_invoices(customer_id):
 	r = requests.get(get_url['customer_invoices']+str(customer_id)+"/"+access_token).json()
 	return r
 
+def get_order_status(order_id):
+	r = requests.get(get_url['order_status']+str(order_id)+"/"+access_token).json()
+	return r
+
+def get_email_authentication(email):
+	r = requests.get(get_url['email_auth']+str(email)+"/"+access_token).json()
+	return r
+
+#print get_product_list()
 '''
 for i in range(len(names)):
 	r = requests.get(product_list+access_token)
