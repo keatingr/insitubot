@@ -9,6 +9,7 @@ customer_id = 489299
 def upload_open_orders(customer_id,shipment_locations):
 	gmap = gmplot.GoogleMapPlotter(42.3344835,-71.2253933, 16).from_geocode("Boston")
 	#TODO delete old zip and html files
+	#TODO zoom to data point lon, lats to properly frame in single view (including customer location); draw customer location
 	lats = []
 	lons = []
 	for shipment in shipment_locations:
