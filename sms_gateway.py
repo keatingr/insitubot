@@ -19,12 +19,13 @@ def hello():
 					   \n3) status of order no. 458373\
 					   \n4} 'reset' or 'help'\
 					   "
-	elif hello.counter == 1000:
+	elif hello.counter == "order":
+		hello.counter = hello.temp
 		if "yes" in in_text.lower():
 			return_text = "your order is being processed"
 		elif "no" in in_text.lower():
-			return_text = "oh..sorry, i was not able to understand you \
-				   correctly, could you be more specific please..!!"
+			return_text = "oh..sorry for not able to understand you \
+				   correctly, could you tell your order again please..!!"
 		else:
 			return_text = help_out()
 	else:
@@ -40,18 +41,22 @@ def get_response(input_text):
 	"""
 	words = input_text.split()
 	input_text = input_text.lower()
-	if "order" in input_text:
+	if "order" in input_text and "status" not in input_text:
 		quantity = [int(s) for s in words if s.isdigit()]
 		item_name = str(words[len(words)-1])
 		output = "So you need "+str(quantity[0])+" "+item_name
 		hello.temp = hello.counter
-		hello.counter = 999
+		hello.counter = "order"
 	elif "status" in input_text and "order" in input_text:
 		order_no = [int(s) for s in words if s.isdigit()]
-		if order_no:
-			output = "Order no. "+str(order_no[0])+" is under process"
+		if len(order_no)>0:
+			details = da.get_order_status(order_no[0])["status"]
+			if details:
+				output = "Order no. "+str(order_no[0])+" "+details
+			else:
+				output = "No order details are available for "+str(order_no[0])
 		else:
-			output = "The status of your order will be provided to you shortly"
+			output = "Could you please specify the order number"
 	elif "thanks" in input_text:
 		output = "You are welcome..!!"
 	else:
