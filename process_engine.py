@@ -8,12 +8,17 @@ customer_id = 489299
 
 #invoices = get_entry('id',customer_id,'customer_invoices',str(customer_id))
 invoices = get_invoices(customer_id)
-print invoices
+#print invoices
 #invoice_id = 4400822
-'''
-for invoice_id in invoices:
-	print invoice_id
-	print get_entry_order_status('status',invoice_id)
+
+
+
+for index, invoice in enumerate(invoices):
+	
+	status = get_entry_order_status('status',invoice['id'])
+	print str(index) + " " + status
+	if status == "on route":
+		obj = {'id':index,'lat':0}
 
 #longitude -77.23188189999999
 #latitude 34.9121733'''
