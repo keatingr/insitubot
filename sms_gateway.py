@@ -29,6 +29,14 @@ def hello():
 				   correctly, could you tell your order again please..!!"
 		else:
 			return_text = help_out()
+	elif hello.counter == "exit":
+		hello.counter = hello.temp
+		f "yes" in in_text.lower():
+			return_text = "Have a good day..!!"
+		elif "no" in in_text.lower():
+			return_text = help_out()
+		else:
+			return_text = help_out()
 	else:
 		return_text = get_response(in_text)
 	response = twiml.Response()
@@ -80,6 +88,12 @@ def get_response(input_text):
 				output = "Your old orders were "+orders
 			else:
 				output = "There were no orders under your name."
+	elif "pic" in input_text or "img" in input_text or "photo" in input_text:
+		output = "Your pics are sent to your email."
+	elif "okay" in input_text or "exit" in input_text:
+		output = "Great. Would you like to know anything else.?"
+		hello.temp = hello.counter
+		hello.counter = "exit"
 	else:
 		output = "Could you be more specific please.!!\n" + help_out()
 	return output
@@ -89,7 +103,10 @@ def help_out():
 		   \n1) order 4 Margherita\
 		   \n2) my orders status\
 		   \n3) status of order no. 458373\
-		   \n4} 'reset' or 'help'\
+		   \n4) my old orders\
+		   \n5) old orders of id no 2938585\
+		   \n6} 'reset' or 'help'\
+		   \n7) exit\
 		   "
 	return text
 
