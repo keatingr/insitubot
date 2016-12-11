@@ -19,6 +19,7 @@ def hello():
 					   \n3) status of order no. 458373\
 					   \n4} 'reset' or 'help'\
 					   "
+		hello.id = entry['id']
 	elif hello.counter == "order":
 		hello.counter = hello.temp
 		if "yes" in in_text.lower():
@@ -31,7 +32,8 @@ def hello():
 	else:
 		return_text = get_response(in_text)
 	response = twiml.Response()
-	hello.counter +=1
+	if type(hello.counter) is not str:
+		hello.counter +=1
 	response.message(return_text)
 	return str(response)
 
@@ -41,12 +43,15 @@ def get_response(input_text):
 	"""
 	words = input_text.split()
 	input_text = input_text.lower()
-	if "order" in input_text and "status" not in input_text:
+	if "order" in input_text and "status" not in input_text and "my" not in input_text:
 		quantity = [int(s) for s in words if s.isdigit()]
 		item_name = str(words[len(words)-1])
-		output = "So you need "+str(quantity[0])+" "+item_name
-		hello.temp = hello.counter
-		hello.counter = "order"
+		if len(quantity)>0:
+			output = "So you need "+str(quantity[0])+" "+item_name
+			hello.temp = hello.counter
+			hello.counter = "order"
+		else:
+			output = "please specify order quantity too..!!"
 	elif "status" in input_text and "order" in input_text:
 		order_no = [int(s) for s in words if s.isdigit()]
 		if len(order_no)>0:
@@ -59,6 +64,21 @@ def get_response(input_text):
 			output = "Could you please specify the order number"
 	elif "thanks" in input_text:
 		output = "You are welcome..!!"
+	elif (("my" in input_text) or ("of" in input_text)) and ("order" in input_text):
+		customer_id = [int(s) for s in words if s.isdigit()]
+		if len(customer_id)>0:
+			invoices = da.get_invoices(customer_id[0])
+			order_all = da.get_all_orders(invoices)
+			orders = ", ".join(order_all)
+			output = "Your old orders were "+orders
+		else:
+			invoices = da.get_invoices(hello.id)
+			order_all = da.get_all_orders(invoices)
+			orders = ", ".join(order_all)
+			if len(order_all)>0:
+				output = "Your old orders were "+orders
+			else:
+				output = "There are no orders under your name."
 	else:
 		output = "Could you be more specific please.!!\n" + help_out()
 	return output

@@ -123,6 +123,12 @@ def get_email_authentication(email):
 	r = requests.get(get_url['email_auth']+str(email)+"/"+access_token).json()
 	return r
 
+def get_all_orders(invoices):
+	orders = []
+	for invoice in invoices:
+		orders.append(invoice["id"])
+	return orders
+
 #print get_product_list()
 '''
 for i in range(len(names)):
