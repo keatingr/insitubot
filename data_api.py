@@ -74,7 +74,6 @@ def place_order(customer_id):
 		"orderItemId":"168234"}
 	return requests.post(url+access_token, data = data).text
 
-print place_order(1289928)
 '''
 for i in range(len(names)):
 	r = requests.get(product_list+access_token)

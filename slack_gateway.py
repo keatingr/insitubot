@@ -8,7 +8,7 @@ BOT_ID = os.environ.get("BOT_ID")
 # constants
 AT_BOT = "<@" + BOT_ID + ">"
 SLACK_USER_MARK = "U3A8AN4VB"
-SLACK_USER_JULIAN = ""
+SLACK_USER_JULIAN = "U3CFGALSC"
 SLACK_USER_AMEH = ""
 SLACK_USER_RAXESH = ""
 
