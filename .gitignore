@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# Output files for maps
+customer_orders_map.*
+customer_orders_map*.*
+
 # OS X
 .DS_Store
 
