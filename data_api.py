@@ -1,5 +1,4 @@
 import argparse, os, json, requests
-from bs4 import BeautifulSoup
 
 #CONSTANTS
 access_token = os.environ.get("DATA_API_ACCESS_TOKEN")
@@ -55,8 +54,8 @@ def get_entry(param,val,url,optional_param = ''):
 	for i in output:
 		if i[param]==val:
 			return_list.append(i)
-			
-	return return_list
+	
+	return return_list[0] if len(return_list)==1 else return_list
 
 
 """
