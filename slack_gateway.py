@@ -11,6 +11,10 @@ SLACK_USER_MARK = "U3A8AN4VB"
 SLACK_USER_JULIAN = "U3CFGALSC"
 SLACK_USER_AMEH = "U3A7XB22U"
 SLACK_USER_RAXESH = "U39EELHNC"
+SLACK_USER_INSITUBOT = "U3D717TAN"
+SLACK_WHISPER_MARK_INSITUBOT = "D3DT90EBZ"
+SLACK_WHISPER_JULIAN_INSITUBOT = "D3DT90EEB"
+#need different handling since unique channels for each; maybe consider first chars D3DT90?
 
 # constructor initialization
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
@@ -98,7 +102,12 @@ def parse_slack_output(slack_rtm_output):
     if output_list and len(output_list) > 0:
         for output in output_list:
             #print output
-            if output and 'text' in output and output['channel'] == "D3DT90EBZ" and output['user'] != "U3D717TAN":
+            isWhisper = False
+            if output and ('text' in output):
+                #TODO handle all whispers instead of demo two
+                if (output['channel'] == SLACK_WHISPER_MARK_INSITUBOT) or (output['channel'] == SLACK_WHISPER_JULIAN_INSITUBOT):
+                    isWhisper = True
+            if (isWhisper == True) and (output['user'] != SLACK_USER_INSITUBOT):
                 return output['text'], \
                        output['channel'], \
                        output['user']
@@ -124,7 +133,7 @@ def nlp_understand(given_phrase):
     elif (given_phrase) in set_of_emotions:
         likelyPhrase = "emotion"
     #elif all other phrases that could mean track open orders return 'track open orders'
-    set_of_greetings = set(['hi', 'hello', 'sup', 'wassump', 'hey', 'heya', 'whatup', 'greetings', 'hola'])
+    set_of_greetings = set(['hi', 'hello', 'sup', 'wassup', 'hey', 'heya', 'whatup', 'greetings', 'hola'])
     if (given_phrase in set_of_greetings):
         likelyPhrase = "greetings"
     return likelyPhrase
