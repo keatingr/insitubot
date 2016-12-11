@@ -31,7 +31,7 @@ def hello():
 			return_text = help_out()
 	elif hello.counter == "exit":
 		hello.counter = hello.temp
-		f "yes" in in_text.lower():
+		if "yes" in in_text.lower():
 			return_text = "Have a good day..!!"
 		elif "no" in in_text.lower():
 			return_text = help_out()
