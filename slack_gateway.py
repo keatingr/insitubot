@@ -1,6 +1,7 @@
 import os
 import time
 from slackclient import SlackClient
+import process_engine as pe
 
 # starterbot's ID as an environment variable
 BOT_ID = os.environ.get("BOT_ID")
@@ -9,41 +10,35 @@ BOT_ID = os.environ.get("BOT_ID")
 AT_BOT = "<@" + BOT_ID + ">"
 SLACK_USER_MARK = "U3A8AN4VB"
 SLACK_USER_JULIAN = "U3CFGALSC"
-SLACK_USER_AMEH = ""
-SLACK_USER_RAXESH = ""
+SLACK_USER_AMEH = "U3A7XB22U"
+SLACK_USER_RAXESH = "U39EELHNC"
 
 # instantiate Slack & Twilio clients
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
+# initiate user mapping (ordinarily LDAP or local datastore or Twilio auth)
+users = {}
+users[SLACK_USER_MARK] = {'id':0,'displayName': "Mark O", 'insituCustomerId':489299}
+users[SLACK_USER_AMEH] = {'id':1,'displayName': "Ameh", 'insituCustomerId':489299}
+users[SLACK_USER_RAXESH] = {'id':2,'displayName': "Raxesh", 'insituCustomerId':489299}
+users[SLACK_USER_JULIAN] = {'id':3,'displayName': "Julian", 'insituCustomerId':489299}
 
-
-def handle_command(command, channel, user):
+def handle_command(command, channel, slack_user_id):
     """
         Receives commands directed at the bot and determines if they
         are valid commands. If so, then acts on the commands. If not,
         returns back what it needs for clarification.
     """
-    #response = "Not sure what you mean. Use the *" + EXAMPLE_COMMAND + \
-    #           "* command with numbers, delimited by spaces."
-    
-    #if command.startswith(EXAMPLE_COMMAND):
-    response = get_user_from_id(user) + " asked me to " + command
-    slack_client.api_call("chat.postMessage", channel=channel,
-                          text=response, as_user=True)
+    if command == "track open orders":
+        print "Entering track open orders"
+        response = "Now performing " + command + " for " + users[slack_user_id]['displayName'] + " ..."
+        customer_id = users[slack_user_id]['insituCustomerId']
+        shipment_locations = pe.get_shipment_locations(customer_id)
+        pe.upload_open_orders(customer_id,shipment_locations)
+    else:
+        response = "homey don't play that"
 
-def get_user_from_id(slack_user_id):
-    """
-    Map constants for Slack API usernames to a display name
-    """
-    userDisplayName = slack_user_id
-    if slack_user_id == SLACK_USER_MARK:
-        userDisplayName = "Mark O"
-    elif slack_user_id == SLACK_USER_AMEH:
-        userDisplayName = "Ameh"
-    elif slack_user_id == SLACK_USER_RAXESH:
-        userDisplayName = "Raxesh"
-    elif slack_user_id == SLACK_USER_JULIAN:
-        userDisplayName = "Julian"
-    return userDisplayName
+    slack_client.api_call("chat.postMessage", channel=channel,
+                  text=response, as_user=True)
 
 def parse_slack_output(slack_rtm_output):
     """

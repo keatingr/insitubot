@@ -22,33 +22,31 @@ def upload_open_orders(customer_id,shipment_locations):
 	zf.write("customer_orders_map.html")
 	zf.close()
 	os.system("curl -F file=@customer_orders_map.zip -F channels=#insitusales -F token="+SLACK_BOT_TOKEN+" https://slack.com/api/files.upload")
-	#myZipFile = zipfile.ZipFile("customer_orders_map.zip", "w" )
-	#myZipFile.write("customer_orders_map.zip","customer_orders_map.html", zipfile.ZIP_DEFLATED )
-	#myZipFile.close()
 
-#EXECUTION BODY========
+def get_shipment_locations(customer_id):
+	invoices = get_invoices(customer_id)
+	shipment_locations = []
+	for index, invoice in enumerate(invoices):
+		order_info = get_order_status(invoice['id'])
+		#print status['latitud']
+		#print str(index) + " " + status
+		if order_info['status'] == "on route":
+			obj = {'id':index,
+			'lat':order_info['latitud'],
+			'lon':order_info['longitud']}
+			shipment_locations.append(obj)
+	return shipment_locations
+
+#TOTAL SCATTERED RANDOM NOTES TO BE DELETED========
 
 #customer = get_entry("id",customer_id,"customer_list")
 #print "Customer Info: " + customer + "\n\n"
 #{"id":489299,"name":"OSCO (S.Pulaski Chicago)","address":"OSCO-DRUG 6351 S. PULASKI RD   ","address2":"","city":"CHICAGO","state":"IL","zipcode":"00000","contact":"","phone":"","latitude":"34.9121733","longitude":"-77.23188189999999"}
 
 #invoices = get_entry('id',customer_id,'customer_invoices',str(customer_id))
-invoices = get_invoices(customer_id)
-#print invoices
-#invoice_id = 4400822
 
-shipment_locations = []
-for index, invoice in enumerate(invoices):
-	order_info = get_order_status(invoice['id'])
-	#print status['latitud']
-	#print str(index) + " " + status
-	if order_info['status'] == "on route":
-		obj = {'id':index,
-		'lat':order_info['latitud'],
-		'lon':order_info['longitud']}
-		shipment_locations.append(obj)
 #longitude -77.23188189999999
 #latitude 34.9121733'''
 
 #customer_id = get_customer()['id']
-upload_open_orders(customer_id,shipment_locations)
+#upload_open_orders(customer_id,shipment_locations)
