@@ -57,7 +57,7 @@ def handle_declaration_response(command, slack_user_id):
         #dynamic data in API makes it impossible to construct stable use cases for demo (recently ordered vs not)
         #demo use case will always be not recently placed any orders
         askUser = "would you like to review your profile information"
-        response = "Hello, " + users[slack_user_id]['displayName'] + "! I see you have not ordered from us recently " + askUser + "?\n\n1. Yes\n2. No"
+        response = "Hello, " + users[slack_user_id]['displayName'] + "! I see you have not ordered from us recently " + askUser + "?\r1. Yes\r2. No"
         retVal = askUser
         slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
     elif nlp_understand(command) == "emotion":
@@ -65,7 +65,7 @@ def handle_declaration_response(command, slack_user_id):
         slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
     elif nlp_understand(command) == "track open orders":
         print "Entering track open orders"
-        response = "Please hold while I " + nlp_understand(command) + " for you, " + users[slack_user_id]['displayName'] + " ..."
+        response = "Please hold while I " + nlp_understand(command) + " for you, " + users[slack_user_id]['displayName'] + " ...\r"
         mySaidRecently = response
         slack_client.api_call("chat.postMessage", channel=channel,
             text=response, as_user=True)
@@ -126,7 +126,7 @@ def nlp_understand(given_phrase):
     """
     likelyPhrase = ""
     set_of_emotions = set([':slightly_smiling_face:',':disappointed:'])
-    if (given_phrase == "track open orders" or given_phrase == "map my orders" or given_phrase == "where are my orders"):
+    if (given_phrase == "track open orders" or given_phrase == "map my orders" or given_phrase == "where are my orders" or given_phrase == "where are my orders?"):
         likelyPhrase = "track open orders"
     elif (given_phrase == "too"):
         likelyPhrase = "track open orders"
