@@ -1,7 +1,6 @@
 # Code credit: initial base template taken from https://www.fullstackpython.com/blog/build-first-slack-bot-python.html
 
-import os
-import time
+import os, time
 from slackclient import SlackClient
 import process_engine as pe
 
@@ -12,10 +11,14 @@ SLACK_USER_MARK = "U3A8AN4VB"
 SLACK_USER_JULIAN = "U3CFGALSC"
 SLACK_USER_AMEH = "U3A7XB22U"
 SLACK_USER_RAXESH = "U39EELHNC"
+SLACK_USER_INSITUBOT = "U3D717TAN"
+SLACK_WHISPER_MARK_INSITUBOT = "D3DT90EBZ"
+SLACK_WHISPER_JULIAN_INSITUBOT = "D3DT90EEB"
+#need different handling since unique channels for each; maybe consider first chars D3DT90?
 
 # constructor initialization
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
-# initiate user mapping (ordinarily LDAP or local datastore or Twilio auth)
+# Initiate user mapping (ordinarily LDAP or local datastore or Twilio Authy)
 # Team inSituBot consists of purchasing agents, all authorized for the customer id arbitrarily chosen as 489299
 users = {}
 users[SLACK_USER_MARK] = {'id':0,'displayName': "Mark O", 'insituCustomerId':489299}
@@ -23,18 +26,31 @@ users[SLACK_USER_AMEH] = {'id':1,'displayName': "Ameh", 'insituCustomerId':48929
 users[SLACK_USER_RAXESH] = {'id':2,'displayName': "Raxesh", 'insituCustomerId':489299}
 users[SLACK_USER_JULIAN] = {'id':3,'displayName': "Julian", 'insituCustomerId':489299}
 
+def handle_customer_emotion(command, slack_user_id):
+    """
+    Can customize the user experience and emotion handling based on available customer data and privacy set_of_greetings
+    Can be extended to accept other data, such as Augmented Reality facial data of emotions
+    These are specific demo use cases, everything would be genericized and mapped for ease of management and customization
+    """
+    if command == ":slightly_smiling_face:":
+        myEmotionalResponse = ":slightly_smiling_face: I have made a note that things have gone well and will try to provide a similar experience for other customers!"
+    elif command == ":disappointed:":
+        myEmotionalResponse = "I'm sorry you feel that way. I have passed the transcript and last few phrases we exchanged to a customer service rep."
+    #elif various handling for emotions by if.. else or external processing by some API, framework or service
+    return myEmotionalResponse
+
 def handle_question_response(pendingQuestion, userInput):
     if pendingQuestion != "":
         if pendingQuestion == "would you like to review your profile information":
             if str(userInput) == "1":
-                response = "You have asked to update profile information. I was just kidding I don't know how to do that yet. Cya!"
+                response = "You have asked to update profile information. This is future functionality."
             else:
-                response = "Ok your loss silly enduser"
+                response = "Confirmed, no profile updates requested."
         slack_client.api_call("chat.postMessage", channel=channel,
             text=response, as_user=True)
     return ""
 
-def handle_declaration_response(command,slack_user_id):
+def handle_declaration_response(command, slack_user_id):
     retVal = "" #if no question is asked don't return a value to be buffered by the function call
     if nlp_understand(command) == "greetings":
         print "Entering greeting"
@@ -44,15 +60,18 @@ def handle_declaration_response(command,slack_user_id):
         response = "Hello, " + users[slack_user_id]['displayName'] + "! I see you have not ordered from us recently " + askUser + "?\n\n1. Yes\n2. No"
         retVal = askUser
         slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
+    elif nlp_understand(command) == "emotion":
+        response = handle_customer_emotion(command,slack_user_id)
+        slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
     elif nlp_understand(command) == "track open orders":
         print "Entering track open orders"
-        response = "Now performing " + nlp_understand(command) + " for " + users[slack_user_id]['displayName'] + " ..."
+        response = "Please hold while I " + nlp_understand(command) + " for you, " + users[slack_user_id]['displayName'] + " ..."
         mySaidRecently = response
         slack_client.api_call("chat.postMessage", channel=channel,
             text=response, as_user=True)
         customer_id = users[slack_user_id]['insituCustomerId']
         shipment_locations = pe.get_shipment_locations(customer_id)
-        pe.upload_open_orders(customer_id,shipment_locations)
+        pe.upload_open_orders(customer_id,shipment_locations,channel)
     else:
         response = "I'm still learning and don't understand " + command
         slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
@@ -60,9 +79,9 @@ def handle_declaration_response(command,slack_user_id):
 
 def handle_command(command, channel, slack_user_id, pendingQuestion):
     """
-        Receives commands directed at the bot and determines if they
-        are valid commands. If so, then acts on the commands. If not,
-        returns back what it needs for clarification.
+    Receives commands directed at the bot and determines if they
+    are valid commands. If so, then acts on the commands. If not,
+    returns back what it needs for clarification.
     """
     print "handle_command: " + command
     retVal = ""
@@ -75,14 +94,24 @@ def handle_command(command, channel, slack_user_id, pendingQuestion):
 
 def parse_slack_output(slack_rtm_output):
     """
-        The Slack Real Time Messaging API is an events firehose.
-        this parsing function returns None unless a message is
-        directed at the Bot, based on its ID.
+    The Slack Real Time Messaging API is an events firehose.
+    this parsing function returns None unless a message is
+    directed at the Bot, based on its ID.
     """
     output_list = slack_rtm_output
     if output_list and len(output_list) > 0:
         for output in output_list:
-            if output and 'text' in output and AT_BOT in output['text']:
+            #print output
+            isWhisper = False
+            if output and ('text' in output):
+                #TODO handle all whispers instead of demo two
+                if (output['channel'] == SLACK_WHISPER_MARK_INSITUBOT) or (output['channel'] == SLACK_WHISPER_JULIAN_INSITUBOT):
+                    isWhisper = True
+            if (isWhisper == True) and (output['user'] != SLACK_USER_INSITUBOT):
+                return output['text'], \
+                       output['channel'], \
+                       output['user']
+            elif output and 'text' in output and AT_BOT in output['text']:
                 # return text after the @ mention, whitespace removed
                 return output['text'].split(AT_BOT)[1].strip().lower(), \
                        output['channel'], \
@@ -95,16 +124,19 @@ def nlp_understand(given_phrase):
     and custom code and perhaps some NLP libraries, frameworks and APIs. Other functions like synonyms,
     common misspelling handling and other ways of reading user intent could be used.
     """
-    retVal = ""
-    if (given_phrase == "track open orders"):
-        retVal = "track open orders"
+    likelyPhrase = ""
+    set_of_emotions = set([':slightly_smiling_face:',':disappointed:'])
+    if (given_phrase == "track open orders" or given_phrase == "map my orders" or given_phrase == "where are my orders"):
+        likelyPhrase = "track open orders"
     elif (given_phrase == "too"):
-        retVal = "track open orders"
+        likelyPhrase = "track open orders"
+    elif (given_phrase) in set_of_emotions:
+        likelyPhrase = "emotion"
     #elif all other phrases that could mean track open orders return 'track open orders'
-    set_of_greetings = set(['hi', 'hello', 'sup', 'hey', 'heya', 'whatup', 'greetings', 'hola'])
+    set_of_greetings = set(['hi', 'hello', 'sup', 'wassup', 'hey', 'heya', 'whatup', 'greetings', 'hola'])
     if (given_phrase in set_of_greetings):
-        retVal = "greetings"
-    return retVal
+        likelyPhrase = "greetings"
+    return likelyPhrase
 
 #MAIN BODY
 pendingQuestion = ""
