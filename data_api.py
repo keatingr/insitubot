@@ -73,6 +73,13 @@ def place_order(customer_id):
 		"orderItemId":"168234"}
 	return requests.post(url+access_token, data = data).text
 
+def get_product_names():
+	output = requests.get(product_list+access_token).json()
+	return_list = []
+	for i in output:
+		return_list.append(i['name'])
+	return return_list
+
 '''
 for i in range(len(names)):
 	r = requests.get(product_list+access_token)
