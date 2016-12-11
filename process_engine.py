@@ -3,11 +3,13 @@ from data_api import get_entry, get_entry_order_status, get_invoices, get_order_
 
 #CONSTANTS=========
 SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
-customer_id = 489299
+#customer_id = 489299
 
 #FUNCTIONS=========
 def upload_open_orders(customer_id,shipment_locations):
-	gmap = gmplot.GoogleMapPlotter(42.3344835,-71.2253933, 16).from_geocode("Boston")
+	#gmap = gmplot.GoogleMapPlotter(42.2121127,-71.5901177, 16).from_geocode("Boston")
+	#16 is zoomed in 1 is zoomed out
+	gmap = gmplot.GoogleMapPlotter(42.371850, -71.182870, 12)
 	#TODO delete old zip and html files
 	#TODO zoom to data point lon, lats to properly frame in single view (including customer location); draw customer location
 	lats = []
@@ -16,7 +18,8 @@ def upload_open_orders(customer_id,shipment_locations):
 		print shipment['lat'] + " " + shipment['lon']
 		lats.append(float(shipment['lat']))
 		lons.append(float(shipment['lon']))
-	gmap.scatter(lats,lons,'#FF0000',size=250,marker=False)
+	gmap.scatter(lats,lons,'#FF0000',size=175,marker=False)
+	#gmap.plot(lats,lons,"#FF0000",edge_width=10)
 	gmap.draw("customer_orders_map.html")
 	zf = zipfile.ZipFile("customer_orders_map.zip", "w")
 	zf.write("customer_orders_map.html")
