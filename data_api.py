@@ -1,6 +1,10 @@
 import argparse, os, json, requests
 from bs4 import BeautifulSoup
 
+#CONSTANTS
+access_token = os.environ.get("DATA_API_ACCESS_TOKEN")
+
+#THE MAIN STUFF
 def check_folder(newpath):
 	if not os.path.exists(newpath):
 		os.makedirs(newpath)
@@ -14,21 +18,32 @@ def read_json_file(filename):
     data = json.load(json_file)
   return data
 
-access_token = os.environ.get("DATA_API_ACCESS_TOKEN")
+# API DOC - https://insituhackathon.blob.core.windows.net/web/insitusales_examples.html
 product_list = 'https://tcedk8i2p6.execute-api.us-east-1.amazonaws.com/latest/product/list/'
 customer_list = 'https://tcedk8i2p6.execute-api.us-east-1.amazonaws.com/latest/customer/list/'
 customer_query = 'https://tcedk8i2p6.execute-api.us-east-1.amazonaws.com/latest/customer/'
 customer_invoices = 'https://tcedk8i2p6.execute-api.us-east-1.amazonaws.com/latest/invoice/list/'
-order_status = 'https://tcedk8i2p6.execute-api.us-east-1.amazonaws.com/latest/order/status/'
+#order_status = 'https://tcedk8i2p6.execute-api.us-east-1.amazonaws.com/latest/order/status/'
 email_auth = 'https://tcedk8i2p6.execute-api.us-east-1.amazonaws.com/latest/authenticate/status/'
 
 get_url = {'product_list':product_list,
 	'customer_list':customer_list,
 	'customer_query':customer_query,
 	'customer_invoices':customer_invoices,
-	'order_status':order_status,
+	#'order_status':order_status,
 	'email_auth':email_auth}
 
+
+"""
+param: label of the value to be retrieved such as id, status
+val:
+url: API url mapping stored in a local variable
+optional_param:
+
+Examples:
+print get_entry('name','110 Bagel Market Bistro','customer_query','1289928')
+print get_entry('id',customer_id,'customer_invoices',str(customer_id))
+"""
 def get_entry(param,val,url,optional_param = ''):
 	if optional_param == '':
 		r = requests.get(get_url[url]+access_token)
@@ -43,12 +58,19 @@ def get_entry(param,val,url,optional_param = ''):
 			
 	return return_list
 
-#print get_entry('name','110 Bagel Market Bistro','customer_query','1289928')
+
+"""
+Requirement: API call must return one and only one record
+"""
+#TODO combine into get_entry with handling since this returns a single entry not a set
+def get_entry_order_status(target_param,invoice_id):
+	url = "https://tcedk8i2p6.execute-api.us-east-1.amazonaws.com/latest/order/status/"
+	r = requests.get(url+str(invoice_id)+"/"+access_token)
+	output = r.json()
+	return output[target_param]
 
 def get_key_value_list(inp, param):
 	return_list = []
-
-
 
 def create_customer(email):
 	url = 'https://tcedk8i2p6.execute-api.us-east-1.amazonaws.com/latest/customer/create/'
