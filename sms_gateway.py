@@ -64,11 +64,12 @@ def get_response(input_text):
 			output = "Could you please specify the order number"
 	elif "thanks" in input_text:
 		output = "You are welcome..!!"
-	elif (("my" in input_text) or ("of" in input_text)) and ("order" in input_text):
+	elif "my" in input_text and "old" in input_text and "order" in input_text:
 		customer_id = [int(s) for s in words if s.isdigit()]
 		if len(customer_id)>0:
 			invoices = da.get_invoices(customer_id[0])
 			order_all = da.get_all_orders(invoices)
+			order_all = [str(s) for s in order_all]
 			orders = ", ".join(order_all)
 			output = "Your old orders were "+orders
 		else:
@@ -78,7 +79,7 @@ def get_response(input_text):
 			if len(order_all)>0:
 				output = "Your old orders were "+orders
 			else:
-				output = "There are no orders under your name."
+				output = "There were no orders under your name."
 	else:
 		output = "Could you be more specific please.!!\n" + help_out()
 	return output
